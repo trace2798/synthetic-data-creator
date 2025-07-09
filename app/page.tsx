@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
@@ -35,7 +34,8 @@ export default function Home() {
       </div>
       <footer className="border-t h-12 w-full px-[5vw] flex justify-between items-center text-primary/70">
         <div>
-          SynthGen is my submission for Gen AI Hackathon by Impetus and Aws
+          SynthGen is my submission for Gen AI Hackathon by Impetus and Aws,
+          Hosted on Devpost.
         </div>
       </footer>
     </div>
