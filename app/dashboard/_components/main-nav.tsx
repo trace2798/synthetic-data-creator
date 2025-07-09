@@ -42,8 +42,8 @@ const Navbar = ({
             className="text-primary hover:text-primary/80 hover:cursor-pointer"
           >
             <div className=" ml-3 flex flex-col">
-              <p className="text-2xl md:text-4xl font-generalSans font-semibold uppercase">
-                SDG
+              <p className="text-2xl md:text-4xl font-generalSans font-semibold">
+                SynthGen
               </p>
             </div>
           </a>
