@@ -68,7 +68,7 @@ export const workspace = pgTable("workspace", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
-  description: text("description").notNull(),
+  description: text("description"),
   userId: uuid("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),

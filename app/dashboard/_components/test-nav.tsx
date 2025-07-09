@@ -6,7 +6,7 @@ import { MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// const TABS = ["Dashboard", "Strength Training", "Diet", "Settings"];
+const TABS = ["Dashboard","Settings"];
 
 function slugify(tab: string) {
   return tab.toLowerCase().replace(/\s+/g, "-");
@@ -22,18 +22,18 @@ export default function TestNav({
   const segments = pathname.split("/").filter(Boolean);
   const subroute = segments[1] ?? "";
 
-  // const activeTab =
-  //   TABS.find((tab) => {
-  //     if (tab === "Dashboard") {
-  //       return !subroute;
-  //     }
-  //     return slugify(tab) === subroute;
-  //   }) || "Dashboard";
+  const activeTab =
+    TABS.find((tab) => {
+      if (tab === "Dashboard") {
+        return !subroute;
+      }
+      return slugify(tab) === subroute;
+    }) || "Dashboard";
 
   return (
     <div className="items-center relative hidden min-[943px]:flex mx-auto">
       <MotionConfig transition={{ type: "spring", bounce: 0, duration: 0.4 }}>
-        {/* <motion.ul
+        <motion.ul
           layout
           className={cn("mx-auto flex w-fit gap-2 flex-row justify-center")}
         >
@@ -65,7 +65,7 @@ export default function TestNav({
               </motion.li>
             );
           })}
-        </motion.ul> */}
+        </motion.ul>
         <UserAccountNav
           email={email}
           name={name}
