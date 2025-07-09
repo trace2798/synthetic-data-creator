@@ -1,12 +1,9 @@
-import { FC } from "react";
-import DomainSelector from "./_components/domain-selector";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import DomainSelector from "./_components/domain-selector";
 
-interface PageProps {}
-
-const Page: FC<PageProps> = async ({}) => {
+const Page = async ({}) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

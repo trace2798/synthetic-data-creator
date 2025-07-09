@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Navbar from "./_components/main-nav";
+import Footer from "@/components/footer/footer";
 // import Footer from "@/components/footer/footer";
 
 export default async function DashboardLayout({
@@ -16,14 +17,14 @@ export default async function DashboardLayout({
     redirect("/login");
   }
   return (
-    <div>
+    <div className="flex flex-col justify-between min-h-screen">
       <Navbar
         email={session.user.email}
         name={session.user.name}
         image={session.user.image || ""}
       />
-      <section>{children}</section>
-      {/* <Footer /> */}
+      <section className="px-[5vw]">{children}</section>
+      <Footer />
     </div>
   );
 }
