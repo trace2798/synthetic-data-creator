@@ -1,19 +1,18 @@
-// src/db/schema.ts
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
-  pgTable,
-  text,
   boolean,
-  integer,
+  index,
+  pgTable,
   real,
+  text,
   timestamp,
   uuid,
-  unique,
-  index,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").default(false).notNull(),
@@ -23,7 +22,9 @@ export const user = pgTable("user", {
 });
 
 export const session = pgTable("session", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
   token: text("token").notNull().unique(),
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
@@ -36,7 +37,9 @@ export const session = pgTable("session", {
 });
 
 export const account = pgTable("account", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   accountId: text("account_id").notNull(),
   providerId: text("provider_id").notNull(),
   userId: uuid("user_id")
@@ -58,7 +61,9 @@ export const account = pgTable("account", {
 });
 
 export const verification = pgTable("verification", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
@@ -69,7 +74,9 @@ export const verification = pgTable("verification", {
 export const userInfo = pgTable(
   "user_info",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
+    id: uuid("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
     userId: uuid("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
