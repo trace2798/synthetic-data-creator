@@ -1,7 +1,14 @@
 "use server";
 import { db } from "@/db";
-import { role, user, workspace, workspaceMembers } from "@/db/schema";
+import {
+  role,
+  syntheticDataContent,
+  user,
+  workspace,
+  workspaceMembers,
+} from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { generate } from "random-words";
 
 export async function createRole(name: string) {
   await db.insert(role).values({
@@ -165,4 +172,24 @@ export async function updateWorkspaceMemberRole(
     .where(eq(workspaceMembers.id, membershipId));
 
   return { status: 200, message: "Role updated" };
+}
+
+export async function createNewData(userId: string, workspaceId: string) {
+  const word = generate();
+  const [newSyntheticData] = await db
+    .insert(syntheticDataContent)
+    .values({
+      userId,
+      workspaceId,
+      title: word as string,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .returning();
+
+  if (!newSyntheticData) {
+    throw new Error("Oops!!! Something went wrong");
+  }
+
+  return { newDataFormId: newSyntheticData.id, status: 200 };
 }

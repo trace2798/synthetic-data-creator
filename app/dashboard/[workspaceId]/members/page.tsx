@@ -48,29 +48,27 @@ const Page: FC<PageProps> = async ({ params }: PageProps) => {
   const currentUserId = session.user.id;
   return (
     <>
-      <div className="flex flex-col space-y-10 w-full max-w-6xl mx-auto min-h-[50vh]">
-        <div className="flex flex-col space-y-3">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl">Current Workspace Members</h1>
-            <AddMemberForm
-              currentUserId={session.user.id}
-              workspaceId={workspaceId}
-              currentWorkspaceMembers={currentWorkspaceMembers}
-            />
+      <div className="absolute top-32 w-full">
+        <div className="flex flex-col space-y-10 w-full max-w-6xl mx-auto min-h-[50vh] ">
+          <div className="flex flex-col space-y-3">
+            <div className="flex justify-between items-center">
+              <h1 className="text-3xl">Current Workspace Members</h1>
+              <AddMemberForm
+                currentUserId={session.user.id}
+                workspaceId={workspaceId}
+                currentWorkspaceMembers={currentWorkspaceMembers}
+              />
+            </div>
+            <Separator />
           </div>
-          <Separator />
+
+          <DataTable
+            data={data as WorkspaceMembers[]}
+            currentUserId={currentUserId}
+            currentUserRoleName={currentUserRoleName}
+            workspaceId={workspaceId}
+          />
         </div>
-        {/* <DataTable columns={columns} data={data as WorkspaceMembers[]} /> */}
-        {/* <DataTable
-          columns={columns({ currentUserId, currentUserRoleName, workspaceId })}
-          data={data as WorkspaceMembers[]}
-        /> */}
-        <DataTable
-          data={data as WorkspaceMembers[]}
-          currentUserId={currentUserId}
-          currentUserRoleName={currentUserRoleName}
-          workspaceId={workspaceId}
-        />
       </div>
     </>
   );

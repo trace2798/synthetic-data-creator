@@ -1,5 +1,12 @@
 import { relations, sql } from "drizzle-orm";
-import { boolean, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: uuid("id")
@@ -141,5 +148,57 @@ export const workspaceMemberRelations = relations(
       fields: [workspaceMembers.roleId],
       references: [role.id],
     }),
+  })
+);
+
+export const syntheticDataContent = pgTable(
+  "synthetic_data_content",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    domain: text("domain"),
+    resultStyle: text("resultStyle"),
+    inputType: text("inputType"),
+    youtubeUrl: text("youtubeUrl"),
+    s3Key: text("s3Key"),
+    instruction: text("instruction"),
+    generatedContent: text("generatedContent"),
+    generatedContentKey: text("generatedContentKey"),
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [index("synthetic_data_content_title_idx").on(table.title)]
+);
+
+export const syntheticDataContentRelations = relations(
+  syntheticDataContent,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [syntheticDataContent.userId],
+      references: [user.id],
+    }),
+    workspace: one(workspace, {
+      fields: [syntheticDataContent.workspaceId],
+      references: [workspace.id],
+    }),
+  })
+);
+
+export const userSyntheticDataRelations = relations(user, ({ many }) => ({
+  syntheticDataContents: many(syntheticDataContent),
+}));
+
+export const workspaceSyntheticDataRelations = relations(
+  workspace,
+  ({ many }) => ({
+    syntheticDataContents: many(syntheticDataContent),
   })
 );

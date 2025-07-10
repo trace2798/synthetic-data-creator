@@ -37,11 +37,18 @@ export default async function WorkspaceIdLayout({
       <div className="absolute w-full top-16 h-12 border-b flex flex-row justify-between items-center">
         <div className="px-[5vw] flex w-full justify-between">
           <SelectWorkspace workspaces={memberships} />
-          <Link href={`/dashboard/${workspaceId}/members`}>
-            <Button size={"sm"} variant={"outline"} className="">
-              Members
-            </Button>
-          </Link>
+          <div className="flex flex-row space-x-5">
+            <Link href={`/dashboard/${workspaceId}`}>
+              <Button size={"sm"} variant={"outline"} className="">
+                Workspace Home
+              </Button>
+            </Link>
+            <Link href={`/dashboard/${workspaceId}/members`}>
+              <Button size={"sm"} variant={"outline"} className="">
+                Members
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
       <section className="">{children}</section>

@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { FileUploader } from "./file-uploader";
@@ -33,7 +33,6 @@ import { Controller } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 
 const CreateDataSchema = z.object({
-  name: z.string(),
   domain: z.string(),
   resultStyle: z.string(),
   inputType: z.string(),
@@ -44,20 +43,30 @@ const CreateDataSchema = z.object({
 
 type OnboardData = z.infer<typeof CreateDataSchema>;
 
-const NewDataForm = ({
-  userId,
-  workspaceId,
-}: {
+type NewDataFormProps = {
   userId: string;
   workspaceId: string;
+  defaultValues?: {
+    domain: string;
+    resultStyle: string;
+    inputType: string;
+    youtubeUrl?: string;
+    s3Key?: string;
+    instruction?: string;
+  };
+};
+
+const NewDataForm: FC<NewDataFormProps> = ({
+  userId,
+  workspaceId,
+  defaultValues,
 }) => {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [uploadedKeys, setUploadedKeys] = useState<string[]>([]);
   const form = useForm<OnboardData>({
     resolver: zodResolver(CreateDataSchema),
-    defaultValues: {
-      name: "",
+    defaultValues: defaultValues ?? {
       domain: "",
       resultStyle: "",
       inputType: "",

@@ -6,6 +6,9 @@ import { auth } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import GenerateNewDataButton from "./new/_components/generate-new-data-button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
 
 interface WorkspaceIdIdPageProps {
   params: Promise<{ workspaceId: string }>;
@@ -40,21 +43,46 @@ const WorkspaceIdIdPage = async ({ params }: WorkspaceIdIdPageProps) => {
   if (workspaceMember.length === 0) {
     redirect("/dashboard");
   }
- 
+  const syntheticDataList = await db.query.syntheticDataContent.findMany({
+    where: (table, { eq }) => eq(table.workspaceId, workspaceId),
+    orderBy: (table, { desc }) => desc(table.createdAt),
+  });
+
   return (
     <>
       <div className="absolute top-32 w-full overflow-x-hidden">
         <div className="flex flex-col w-full min-h-[60vh] space-y-10 max-w-6xl mx-auto ">
           <div className=" flex flex-col space-y-5">
-            <Label className="text-primary/80">
-              Your generated synthetic data
-            </Label>
+            <div className="flex justify-between items-center">
+              {/* <Label className="text-primary/80">
+                Your generated synthetic data
+              </Label> */}
+              <Label>Synthetic Data</Label>
+              <GenerateNewDataButton
+                userId={session.user.id}
+                workspaceId={workspaceId}
+              />
+            </div>
             <Separator />
           </div>
           <div className="flex flex-col space-y-5">
-            <Label>Synthetic Data</Label>
+            {/* <Label>Synthetic Data</Label> */}
             <div>
-              <div className="flex flex-row space-x-10"></div>
+              <div className="flex flex-row gap-10">
+                {syntheticDataList.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/dashboard/${workspaceId}/${item.id}`}
+                    className="w-full max-w-sm"
+                  >
+                    <Card className="w-full max-w-sm">
+                      <CardHeader>
+                        <CardTitle>{item.title}</CardTitle>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
