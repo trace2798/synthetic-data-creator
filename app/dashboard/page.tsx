@@ -35,41 +35,41 @@ const Page = async ({}) => {
   console.log("MEMBERSHIPS:", memberships);
   return (
     <>
-      {memberships.length === 0 && (
+      {memberships.length === 0 ? (
         <div>
           <CreateWorkspaceForm userId={session.user.id} />
         </div>
+      ) : (
+        <div className="flex items-center justify-center space-y-5">
+          <Card className="w-full max-w-sm">
+            <CardHeader>
+              <CardTitle>Your Workspaces</CardTitle>
+              <CardDescription>
+                List of workspaces you have created
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5 hover:cursor-pointer ">
+              {memberships.map((workspace) => (
+                <a
+                  key={workspace.workspaceId}
+                  href={`/dashboard/${workspace.workspaceId}`}
+                  className="flex flex-col border p-3 rounded-md hover:bg-accent"
+                >
+                  <div className="flex flex-col">
+                    <div className="">{workspace.workspaceTitle}</div>
+                    <p className="text-xs text-indigo-400">
+                      {workspace.roleName}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </CardContent>
+            <CardFooter className="w-full flex justify-center">
+              <CreateWorkspaceDialog currentUserId={session.user.id} />
+            </CardFooter>
+          </Card>
+        </div>
       )}
-
-      <div className="flex items-center justify-center space-y-5">
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle>Your Workspaces</CardTitle>
-            <CardDescription>
-              List of workspaces you have created
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-5 hover:cursor-pointer ">
-            {memberships.map((workspace) => (
-              <a
-                key={workspace.workspaceId}
-                href={`/dashboard/${workspace.workspaceId}`}
-                className="flex flex-col border p-3 rounded-md hover:bg-accent"
-              >
-                <div className="flex flex-col">
-                  <div className="">{workspace.workspaceTitle}</div>
-                  <p className="text-xs text-indigo-400">
-                    {workspace.roleName}
-                  </p>
-                </div>
-              </a>
-            ))}
-          </CardContent>
-          <CardFooter className="w-full flex justify-center">
-            <CreateWorkspaceDialog currentUserId={session.user.id} />
-          </CardFooter>
-        </Card>
-      </div>
     </>
   );
 };

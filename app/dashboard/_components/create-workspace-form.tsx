@@ -54,14 +54,14 @@ export default function CreateWorkspaceForm({ userId }: { userId: string }) {
     try {
       const res = await createWorkspace(userId, data.name, data.description);
       if (res.status === 200) {
-        toast.success("Profile and initial weight saved!");
+        toast.success("Workspace Created");
         form.reset();
-        router.push("/dashboard");
+        router.push(`/dashboard/${res.workspaceId}`);
       } else {
-        toast.error("Failed to save data");
+        toast.error("Something went wrong creating workspace");
       }
     } catch {
-      toast.error("Unexpected error occurred");
+      toast.error("Something went wrong creating workspace");
     } finally {
       setSubmitting(false);
     }

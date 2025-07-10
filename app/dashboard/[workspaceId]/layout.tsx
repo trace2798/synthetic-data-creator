@@ -32,13 +32,11 @@ export default async function WorkspaceIdLayout({
     .innerJoin(workspace, eq(workspaceMembers.workspaceId, workspace.id))
     .innerJoin(role, eq(workspaceMembers.roleId, role.id))
     .where(eq(workspaceMembers.userId, session.user.id));
-  console.log("MEMBERSHIPS LAYOUT:", memberships);
   return (
     <div className="">
       <div className="absolute w-full top-16 h-12 border-b flex flex-row justify-between items-center">
         <div className="px-[5vw] flex w-full justify-between">
           <SelectWorkspace workspaces={memberships} />
-          {workspaceId}
           <Link href={`/dashboard/${workspaceId}/members`}>
             <Button size={"sm"} variant={"outline"} className="">
               Members

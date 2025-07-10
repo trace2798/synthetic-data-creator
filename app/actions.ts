@@ -42,7 +42,6 @@ export async function createWorkspace(
     throw new Error("Admin role not found in roles table. Seed roles first!");
   }
 
-  // Step 3: Insert creator as member with Admin role
   await db.insert(workspaceMembers).values({
     userId,
     workspaceId: newWorkspace.id,
@@ -51,5 +50,5 @@ export async function createWorkspace(
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  return { status: 200 };
+  return { workspaceId: newWorkspace.id, status: 200 };
 }
