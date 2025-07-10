@@ -1,0 +1,20 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - echo "BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET" >> .env.production
+        - echo "BETTER_AUTH_URL=$BETTER_AUTH_URL" >> .env.production
+        - echo "DATABASE_URL" >> .env.production
+        - echo "CLOUDFRONT_BASE_URL" >> .env.production
+        - npm run build
+
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    - node_modules/**/*
