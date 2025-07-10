@@ -2,6 +2,8 @@
 import { db } from "@/db";
 import {
   role,
+  syntheticCsvContent,
+  syntheticCsvFile,
   syntheticDataContent,
   syntheticDataFile,
   user,
@@ -238,4 +240,69 @@ export async function saveGeneratedFiles(
       format: file.format,
     }))
   );
+}
+
+export async function saveGeneratedCSVFiles(
+  syntheticCsvContentId: string,
+  files: { s3Key: string; format: string }[]
+) {
+  if (!syntheticCsvContentId || files.length === 0) {
+    throw new Error("Missing data");
+  }
+
+  await db.insert(syntheticCsvFile).values(
+    files.map((file) => ({
+      syntheticCsvContentId, 
+      s3Key: file.s3Key,
+      format: file.format, 
+    }))
+  );
+}
+
+export async function createNewCSVData(userId: string, workspaceId: string) {
+  const word = generate();
+  const [newCSVSyntheticData] = await db
+    .insert(syntheticCsvContent)
+    .values({
+      userId,
+      workspaceId,
+      inputType: "csv",
+      resultStyle: "schema",
+      title: word as string,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .returning();
+
+  if (!newCSVSyntheticData) {
+    throw new Error("Oops!!! Something went wrong");
+  }
+
+  return { newDataFormId: newCSVSyntheticData.id, status: 200 };
+}
+
+export async function updateSyntheticDataCSV(
+  dataFormId: string,
+  userId: string,
+  workspaceId: string,
+  payload: {
+    domain: string;
+    resultStyle: string;
+    inputType: string;
+    s3Key?: string;
+    instruction?: string;
+  }
+) {
+  await db
+    .update(syntheticCsvContent)
+    .set({
+      domain: payload.domain,
+      resultStyle: payload.resultStyle,
+      inputType: payload.inputType,
+      s3Key: payload.s3Key ?? "",
+      instruction: payload.instruction ?? "",
+      updatedAt: new Date(),
+    })
+    .where(eq(syntheticCsvContent.id, dataFormId))
+    .returning();
 }

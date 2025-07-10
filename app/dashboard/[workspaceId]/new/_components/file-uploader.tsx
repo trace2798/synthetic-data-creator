@@ -102,6 +102,7 @@ export function FileUploader({
     accept: {
       "application/pdf": [".pdf"],
       "text/plain": [".txt"],
+      "text/csv": [".csv"],
     },
   });
 

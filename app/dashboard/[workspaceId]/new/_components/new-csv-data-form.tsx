@@ -1,4 +1,9 @@
 "use client";
+import {
+  saveGeneratedCSVFiles,
+  saveGeneratedFiles,
+  updateSyntheticDataCSV,
+} from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,30 +28,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
+import debounce from "lodash.debounce";
 import { useRouter } from "next/navigation";
 import { FC, useEffect, useRef, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { FileUploader } from "./file-uploader";
-import { Controller } from "react-hook-form";
-import { Textarea } from "@/components/ui/textarea";
-import debounce from "lodash.debounce";
-import { saveGeneratedFiles, updateSyntheticData } from "@/app/actions";
-import { toast } from "sonner";
 
 const CreateDataSchema = z.object({
   domain: z.string(),
   resultStyle: z.string(),
   inputType: z.string(),
-  youtubeUrl: z.string(),
   s3Key: z.string(),
   instruction: z.string(),
 });
 
 type OnboardData = z.infer<typeof CreateDataSchema>;
 
-type NewDataFormProps = {
+type NewCSVDataFormProps = {
   userId: string;
   workspaceId: string;
   dataFormId: string;
@@ -54,13 +56,12 @@ type NewDataFormProps = {
     domain: string;
     resultStyle: string;
     inputType: string;
-    youtubeUrl?: string;
     s3Key?: string;
     instruction?: string;
   };
 };
 
-const NewDataForm: FC<NewDataFormProps> = ({
+const NewCSVDataForm: FC<NewCSVDataFormProps> = ({
   userId,
   workspaceId,
   dataFormId,
@@ -69,14 +70,12 @@ const NewDataForm: FC<NewDataFormProps> = ({
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [uploadedKeys, setUploadedKeys] = useState<string[]>([]);
-  const [generatedData, setGeneratedData] = useState<string | null>(null);
   const form = useForm<OnboardData>({
     resolver: zodResolver(CreateDataSchema),
     defaultValues: defaultValues ?? {
       domain: "",
-      resultStyle: "",
-      inputType: "",
-      youtubeUrl: "",
+      resultStyle: "schema",
+      inputType: "csv",
       s3Key: "",
       instruction: "",
     },
@@ -87,7 +86,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
   const debouncedUpdate = useRef(
     debounce(async (values: OnboardData) => {
       try {
-        await updateSyntheticData(dataFormId, userId, workspaceId, values);
+        await updateSyntheticDataCSV(dataFormId, userId, workspaceId, values);
         toast.success("UPDATED");
       } catch (err) {
         console.error("Auto‐save failed", err);
@@ -104,18 +103,15 @@ const NewDataForm: FC<NewDataFormProps> = ({
   const onSubmit = form.handleSubmit(async (values) => {
     setSubmitting(true);
     try {
-      const res = await fetch("http://localhost:3001/generate-data", {
+      const res = await fetch("http://localhost:3001/generate-csv", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           dataFormId,
-          userId,
           workspaceId,
           domain: values.domain,
-          resultStyle: values.resultStyle,
-          youtubeUrl: values.youtubeUrl,
           s3Key: values.s3Key,
           instruction: values.instruction,
         }),
@@ -128,10 +124,9 @@ const NewDataForm: FC<NewDataFormProps> = ({
 
       const result = await res.json();
       console.log("RESULTS", result);
-      if (result.jsonKey && result.jsonlKey) {
-        await saveGeneratedFiles(dataFormId, [
-          { s3Key: result.jsonKey, format: "json" },
-          { s3Key: result.jsonlKey, format: "jsonl" },
+      if (result.csvKey) {
+        await saveGeneratedCSVFiles(dataFormId, [
+          { s3Key: result.csvKey, format: "csv" },
         ]);
       }
 
@@ -145,6 +140,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
     }
   });
   const s3Key = form.watch("s3Key");
+
   return (
     <>
       <div>
@@ -155,11 +151,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form
-                // onSubmit={form.handleSubmit(onSubmit)}
-                onSubmit={onSubmit}
-                className="flex flex-col gap-10"
-              >
+              <form onSubmit={onSubmit} className="flex flex-col gap-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                   <FormField
                     control={form.control}
@@ -178,9 +170,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
                               <SelectValue placeholder="pdf" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="pdf">PDF</SelectItem>
-                              <SelectItem value="txt">TXT</SelectItem>
-                              <SelectItem value="youtube">YouTube</SelectItem>
+                              <SelectItem value="csv">CSV</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -209,7 +199,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
                               <SelectItem value="healthcare">
                                 Healthcare
                               </SelectItem>
-                              <SelectItem value="generic">Generic</SelectItem>
+                              <SelectItem value="custom">Custom</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -234,12 +224,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
                               <SelectValue placeholder="Result Style" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="qa">
-                                Question Answer
-                              </SelectItem>
-                              <SelectItem value="cot">
-                                Chain of Thought
-                              </SelectItem>
+                              <SelectItem value="schema">Schema</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -248,7 +233,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
                     )}
                   />
                 </div>
-                {["pdf", "txt"].includes(inputType) && (
+                {["pdf", "txt", "csv"].includes(inputType) && (
                   <Controller
                     control={form.control}
                     name="s3Key"
@@ -278,23 +263,6 @@ const NewDataForm: FC<NewDataFormProps> = ({
                   />
                 )}
 
-                {inputType === "youtube" && (
-                  <FormField
-                    control={form.control}
-                    name="youtubeUrl"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="font-satoshi text-base">
-                          Youtube Link
-                        </FormLabel>
-                        <FormControl className="grid grid-cols-3 h-8 items-center">
-                          <Input placeholder="" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
                 <FormField
                   control={form.control}
                   name="instruction"
@@ -323,4 +291,4 @@ const NewDataForm: FC<NewDataFormProps> = ({
   );
 };
 
-export default NewDataForm;
+export default NewCSVDataForm;

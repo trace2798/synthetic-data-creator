@@ -9,6 +9,8 @@ import { redirect } from "next/navigation";
 import GenerateNewDataButton from "./new/_components/generate-new-data-button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import GenerateNewCSVButton from "./new/_components/generate-new-csv-button";
+import NewCSVDataForm from "./new/_components/new-csv-data-form";
 
 interface WorkspaceIdIdPageProps {
   params: Promise<{ workspaceId: string }>;
@@ -47,21 +49,27 @@ const WorkspaceIdIdPage = async ({ params }: WorkspaceIdIdPageProps) => {
     where: (table, { eq }) => eq(table.workspaceId, workspaceId),
     orderBy: (table, { desc }) => desc(table.createdAt),
   });
-
+  const syntheticCsvDataList = await db.query.syntheticCsvContent.findMany({
+    where: (table, { eq }) => eq(table.workspaceId, workspaceId),
+    orderBy: (table, { desc }) => desc(table.createdAt),
+  });
   return (
     <>
       <div className="absolute top-32 w-full overflow-x-hidden">
         <div className="flex flex-col w-full min-h-[60vh] space-y-10 max-w-6xl mx-auto ">
           <div className=" flex flex-col space-y-5">
             <div className="flex justify-between items-center">
-              {/* <Label className="text-primary/80">
-                Your generated synthetic data
-              </Label> */}
               <Label>Synthetic Data</Label>
-              <GenerateNewDataButton
-                userId={session.user.id}
-                workspaceId={workspaceId}
-              />
+              <div className="flex flex-row items-center space-x-3">
+                <GenerateNewDataButton
+                  userId={session.user.id}
+                  workspaceId={workspaceId}
+                />
+                <GenerateNewCSVButton
+                  userId={session.user.id}
+                  workspaceId={workspaceId}
+                />
+              </div>
             </div>
             <Separator />
           </div>
@@ -97,6 +105,42 @@ const WorkspaceIdIdPage = async ({ params }: WorkspaceIdIdPageProps) => {
                 )}
               </div>
             </div>
+            <div className="flex flex-col space-y-3">
+              <Label>CSV </Label>
+              <Separator />
+            </div>
+            <div className="flex flex-row gap-10">
+              {syntheticCsvDataList.length === 0 ? (
+                <div className="w-full text-center flex flex-col space-y-5">
+                  <h1 className="text-3xl">
+                    Looks like you have not generated any data till now
+                  </h1>
+                  <div className="w-full max-w-sm mx-auto">
+                    <GenerateNewCSVButton
+                      userId={session.user.id}
+                      workspaceId={workspaceId}
+                    />
+                  </div>
+                </div>
+              ) : (
+                syntheticCsvDataList.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={`/dashboard/${workspaceId}/csv/${item.id}`}
+                    className="w-full max-w-sm"
+                  >
+                    <Card className="w-full max-w-sm">
+                      <CardHeader>
+                        <CardTitle>{item.title}</CardTitle>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                ))
+              )}
+            </div>
+            {/* <div>
+              <NewCSVDataForm dataFormId="" userId="" workspaceId="" />
+            </div> */}
           </div>
         </div>
       </div>

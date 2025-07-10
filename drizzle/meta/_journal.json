@@ -50,6 +50,20 @@
       "when": 1752180394617,
       "tag": "0006_nifty_night_nurse",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1752184284586,
+      "tag": "0007_familiar_satana",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1752189865080,
+      "tag": "0008_remarkable_bastion",
+      "breakpoints": true
     }
   ]
 }

@@ -238,3 +238,81 @@ export const syntheticDataContentFilesRelation = relations(
     files: many(syntheticDataFile),
   })
 );
+
+export const syntheticCsvContent = pgTable(
+  "synthetic_csv_content",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspace.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    domain: text("domain"),
+    resultStyle: text("resultStyle"),
+    inputType: text("inputType"),
+    s3Key: text("s3Key"),
+    headerSchema: text("header_schema"),
+    instruction: text("instruction"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [index("synthetic_csv_content_title_idx").on(table.title)]
+);
+export const syntheticCsvFile = pgTable(
+  "synthetic_csv_file",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    syntheticCsvContentId: uuid("synthetic_csv_content_id")
+      .notNull()
+      .references(() => syntheticCsvContent.id, { onDelete: "cascade" }),
+    s3Key: text("s3_key").notNull(),
+    format: text("format").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("synthetic_csv_file_content_idx").on(table.syntheticCsvContentId),
+  ]
+);
+
+export const syntheticCsvContentRelations = relations(
+  syntheticCsvContent,
+  ({ one, many }) => ({
+    user: one(user, {
+      fields: [syntheticCsvContent.userId],
+      references: [user.id],
+    }),
+    workspace: one(workspace, {
+      fields: [syntheticCsvContent.workspaceId],
+      references: [workspace.id],
+    }),
+    files: many(syntheticCsvFile),
+  })
+);
+
+export const userSyntheticCsvRelations = relations(user, ({ many }) => ({
+  syntheticCsvContents: many(syntheticCsvContent),
+}));
+
+export const workspaceSyntheticCsvRelations = relations(
+  workspace,
+  ({ many }) => ({
+    syntheticCsvContents: many(syntheticCsvContent),
+  })
+);
+
+
+export const syntheticCsvFileRelations = relations(
+  syntheticCsvFile,
+  ({ one }) => ({
+    content: one(syntheticCsvContent, {
+      fields: [syntheticCsvFile.syntheticCsvContentId],
+      references: [syntheticCsvContent.id],
+    }),
+  })
+);
+
