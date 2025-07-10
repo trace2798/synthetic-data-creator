@@ -1,33 +1,59 @@
 import { FC } from "react";
-import { columns, Payment } from "./_components/columns";
+import { columns, WorkspaceMembers } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
 import { Separator } from "@/components/ui/separator";
+import AddMemberForm from "./_components/add-member-form";
+import { db } from "@/db";
+import { role, user, workspace, workspaceMembers } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-interface PageProps {}
-
-async function getData(): Promise<Payment[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
-    },
-  ];
+interface PageProps {
+  params: Promise<{ workspaceId: string }>;
 }
 
-const Page: FC<PageProps> = async ({}) => {
-  const data = await getData();
+const Page: FC<PageProps> = async ({ params }: PageProps) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session) {
+    redirect("/login");
+  }
+  const { workspaceId } = await params;
 
+  const currentWorkspaceMembers = await db
+    .select({
+      membershipId: workspaceMembers.id,
+      userId: user.id,
+      userName: user.name,
+      userEmail: user.email,
+      userImage: user.image,
+      roleName: role.name,
+      membershipCreated: workspaceMembers.createdAt,
+    })
+    .from(workspaceMembers)
+    .innerJoin(user, eq(workspaceMembers.userId, user.id))
+    .innerJoin(role, eq(workspaceMembers.roleId, role.id))
+    .where(eq(workspaceMembers.workspaceId, workspaceId));
+  console.log("WORKSPACE MEMBERS:", currentWorkspaceMembers);
+  const data = currentWorkspaceMembers;
   return (
     <>
-      <div className="flex flex-col space-y-10 w-full max-w-6xl mx-auto">
-        <div className="flex flex-col space-y-5">
-          <h1 className="text-5xl">Current Workspace Members</h1>
+      <div className="flex flex-col space-y-10 w-full max-w-6xl mx-auto min-h-[50vh]">
+        <div className="flex flex-col space-y-3">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl">Current Workspace Members</h1>
+            <AddMemberForm
+              currentUserId={session.user.id}
+              workspaceId={workspaceId}
+              currentWorkspaceMembers={currentWorkspaceMembers}
+            />
+          </div>
           <Separator />
         </div>
-        <DataTable columns={columns} data={data} />
+        <DataTable columns={columns} data={data as WorkspaceMembers[]} />
       </div>
     </>
   );
