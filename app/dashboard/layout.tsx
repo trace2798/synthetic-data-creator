@@ -23,7 +23,7 @@ export default async function DashboardLayout({
         image={session.user.image || ""}
       />
       <section>{children}</section>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

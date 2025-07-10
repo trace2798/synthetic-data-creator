@@ -33,6 +33,8 @@ const Page = async ({}) => {
     .innerJoin(role, eq(workspaceMembers.roleId, role.id))
     .where(eq(workspaceMembers.userId, session.user.id));
   console.log("MEMBERSHIPS:", memberships);
+
+  
   return (
     <>
       {memberships.length === 0 ? (

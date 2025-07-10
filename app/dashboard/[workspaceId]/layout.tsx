@@ -44,7 +44,7 @@ export default async function WorkspaceIdLayout({
           </Link>
         </div>
       </div>
-      <section className="px-[5vw]">{children}</section>
+      <section className="">{children}</section>
     </div>
   );
 }

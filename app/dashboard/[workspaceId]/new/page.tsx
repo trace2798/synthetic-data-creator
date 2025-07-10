@@ -1,17 +1,16 @@
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { db } from "@/db";
 import { role, workspaceMembers } from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import NewDataForm from "./_components/new-data-form";
 
-interface WorkspaceIdIdPageProps {
+interface PageProps {
   params: Promise<{ workspaceId: string }>;
 }
 
-const WorkspaceIdIdPage = async ({ params }: WorkspaceIdIdPageProps) => {
+const Page = async ({ params }: PageProps) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -40,27 +39,27 @@ const WorkspaceIdIdPage = async ({ params }: WorkspaceIdIdPageProps) => {
   if (workspaceMember.length === 0) {
     redirect("/dashboard");
   }
- 
+  // const loader = YoutubeLoader.createFromUrl(
+  //   "https://www.youtube.com/watch?v=H8zTwiYXxDM",
+  //   {
+  //     language: "en",
+  //     addVideoInfo: true,
+  //   }
+  // );
+  // https://www.youtube.com/watch?v=0OaDyjB9Ib8
+  // https://www.youtube.com/watch?v=H8zTwiYXxDM
+  // const docs = await loader.load();
+
+  // console.log("YOUTUBE", docs);
   return (
     <>
       <div className="absolute top-32 w-full overflow-x-hidden">
         <div className="flex flex-col w-full min-h-[60vh] space-y-10 max-w-6xl mx-auto ">
-          <div className=" flex flex-col space-y-5">
-            <Label className="text-primary/80">
-              Your generated synthetic data
-            </Label>
-            <Separator />
-          </div>
-          <div className="flex flex-col space-y-5">
-            <Label>Synthetic Data</Label>
-            <div>
-              <div className="flex flex-row space-x-10"></div>
-            </div>
-          </div>
+          <NewDataForm workspaceId={workspaceId} userId={session.user.id} />
         </div>
       </div>
     </>
   );
 };
 
-export default WorkspaceIdIdPage;
+export default Page;
