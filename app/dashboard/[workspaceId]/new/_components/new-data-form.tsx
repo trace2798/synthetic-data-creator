@@ -32,7 +32,7 @@ import { FileUploader } from "./file-uploader";
 import { Controller } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import debounce from "lodash.debounce";
-import { updateSyntheticData } from "@/app/actions";
+import { saveGeneratedFiles, updateSyntheticData } from "@/app/actions";
 import { toast } from "sonner";
 
 const CreateDataSchema = z.object({
@@ -69,6 +69,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [uploadedKeys, setUploadedKeys] = useState<string[]>([]);
+  const [generatedData, setGeneratedData] = useState<string | null>(null);
   const form = useForm<OnboardData>({
     resolver: zodResolver(CreateDataSchema),
     defaultValues: defaultValues ?? {
@@ -87,7 +88,6 @@ const NewDataForm: FC<NewDataFormProps> = ({
     debounce(async (values: OnboardData) => {
       try {
         await updateSyntheticData(dataFormId, userId, workspaceId, values);
-        // optional: you could show a “Saved” toast here
         toast.success("UPDATED");
       } catch (err) {
         console.error("Auto‐save failed", err);
@@ -101,17 +101,49 @@ const NewDataForm: FC<NewDataFormProps> = ({
     }
   }, [allValues, debouncedUpdate, form.formState.isDirty]);
 
-  // const onSubmit = async (values) => {
-  //   setSubmitting(true);
+  const onSubmit = form.handleSubmit(async (values) => {
+    setSubmitting(true);
+    try {
+      const res = await fetch("http://localhost:3001/generate-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dataFormId,
+          userId,
+          workspaceId,
+          domain: values.domain,
+          resultStyle: values.resultStyle,
+          youtubeUrl: values.youtubeUrl,
+          s3Key: values.s3Key,
+          instruction: values.instruction,
+        }),
+      });
 
-  //   // If input is a file type, ensure file has been uploaded (via FileUploader)
-  //   // If input is youtube, take values.youtubeUrl
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err?.message || "Unknown error");
+      }
 
-  //   // call your API here...
+      const result = await res.json();
+      console.log("RESULTS", result);
+      if (result.jsonKey && result.jsonlKey) {
+        await saveGeneratedFiles(dataFormId, [
+          { s3Key: result.jsonKey, format: "json" },
+          { s3Key: result.jsonlKey, format: "jsonl" },
+        ]);
+      }
 
-  //   setSubmitting(false);
-  //   router.refresh();
-  // };
+      toast.success("Data generated!");
+      router.refresh();
+    } catch (error: any) {
+      console.error("Generate‐data error", error);
+      toast.error(`Failed: ${error.message}`);
+    } finally {
+      setSubmitting(false);
+    }
+  });
   const s3Key = form.watch("s3Key");
   return (
     <>
@@ -125,6 +157,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
             <Form {...form}>
               <form
                 // onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={onSubmit}
                 className="flex flex-col gap-10"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -266,7 +299,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
                 )}
                 <FormField
                   control={form.control}
-                  name="youtubeUrl"
+                  name="instruction"
                   render={({ field }) => (
                     <FormItem className="w-full">
                       <FormLabel className="font-satoshi text-base">

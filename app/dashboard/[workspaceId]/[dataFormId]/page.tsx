@@ -1,5 +1,10 @@
 import { db } from "@/db";
-import { role, syntheticDataContent, workspaceMembers } from "@/db/schema";
+import {
+  role,
+  syntheticDataContent,
+  syntheticDataFile,
+  workspaceMembers,
+} from "@/db/schema";
 import { auth } from "@/lib/auth";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
@@ -57,11 +62,19 @@ const Page = async ({ params }: PageProps) => {
   if (!formData) {
     return <p>Form not found.</p>;
   }
-
+  const generatedFiles = await db
+    .select({
+      id: syntheticDataFile.id,
+      s3Key: syntheticDataFile.s3Key,
+      format: syntheticDataFile.format,
+      createdAt: syntheticDataFile.createdAt,
+    })
+    .from(syntheticDataFile)
+    .where(eq(syntheticDataFile.syntheticDataContentId, dataFormId));
   return (
     <>
       <div className="absolute top-32 w-full overflow-x-hidden">
-        <div className="flex flex-col w-full min-h-[60vh] space-y-10 max-w-6xl mx-auto ">
+        <div className="flex flex-col w-full min-h-[60vh] space-y-5 max-w-6xl mx-auto ">
           <NewDataForm
             workspaceId={workspaceId}
             userId={session.user.id}
@@ -75,6 +88,38 @@ const Page = async ({ params }: PageProps) => {
               instruction: formData.instruction ?? "",
             }}
           />
+          <div>
+            {generatedFiles.length > 0 && (
+              <div className="w-full max-w-5xl mx-auto pb-24">
+                <h3 className="text-lg font-semibold mb-4">Generated Files</h3>
+                <ul className="space-y-2">
+                  {generatedFiles.map((file) => (
+                    <li
+                      key={file.id}
+                      className="border rounded p-3 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">
+                          {file.format.toUpperCase()}
+                        </p>
+                        <p className="text-xs text-gray-500 break-all">
+                          {file.s3Key}
+                        </p>
+                      </div>
+                      <a
+                        href={`${process.env.CLOUDFRONT_BASE_URL}/${file.s3Key}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 text-sm hover:underline"
+                      >
+                        View
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </>

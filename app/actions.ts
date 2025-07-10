@@ -3,6 +3,7 @@ import { db } from "@/db";
 import {
   role,
   syntheticDataContent,
+  syntheticDataFile,
   user,
   workspace,
   workspaceMembers,
@@ -220,5 +221,21 @@ export async function updateSyntheticData(
     })
     .where(eq(syntheticDataContent.id, dataFormId))
     .returning();
- 
+}
+
+export async function saveGeneratedFiles(
+  syntheticDataContentId: string,
+  files: { s3Key: string; format: string }[]
+) {
+  if (!syntheticDataContentId || files.length === 0) {
+    throw new Error("Missing data");
+  }
+
+  await db.insert(syntheticDataFile).values(
+    files.map((file) => ({
+      syntheticDataContentId,
+      s3Key: file.s3Key,
+      format: file.format,
+    }))
+  );
 }

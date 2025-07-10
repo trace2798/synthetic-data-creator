@@ -170,8 +170,6 @@ export const syntheticDataContent = pgTable(
     youtubeUrl: text("youtubeUrl"),
     s3Key: text("s3Key"),
     instruction: text("instruction"),
-    generatedContent: text("generatedContent"),
-    generatedContentKey: text("generatedContentKey"),
     createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
     updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow(),
   },
@@ -200,5 +198,43 @@ export const workspaceSyntheticDataRelations = relations(
   workspace,
   ({ many }) => ({
     syntheticDataContents: many(syntheticDataContent),
+  })
+);
+
+export const syntheticDataFile = pgTable(
+  "synthetic_data_file",
+  {
+    id: uuid("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+
+    syntheticDataContentId: uuid("synthetic_data_content_id")
+      .notNull()
+      .references(() => syntheticDataContent.id, { onDelete: "cascade" }),
+
+    s3Key: text("s3Key").notNull(),
+    format: text("format").notNull(),
+
+    createdAt: timestamp("created_at", { mode: "date" }).defaultNow(),
+  },
+  (table) => [
+    index("synthetic_data_file_content_idx").on(table.syntheticDataContentId),
+  ]
+);
+
+export const syntheticDataFileRelations = relations(
+  syntheticDataFile,
+  ({ one }) => ({
+    syntheticDataContent: one(syntheticDataContent, {
+      fields: [syntheticDataFile.syntheticDataContentId],
+      references: [syntheticDataContent.id],
+    }),
+  })
+);
+
+export const syntheticDataContentFilesRelation = relations(
+  syntheticDataContent,
+  ({ many }) => ({
+    files: many(syntheticDataFile),
   })
 );
