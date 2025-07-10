@@ -65,6 +65,7 @@ const Page = async ({ params }: PageProps) => {
           <NewDataForm
             workspaceId={workspaceId}
             userId={session.user.id}
+            dataFormId={dataFormId}
             defaultValues={{
               domain: formData.domain ?? "",
               resultStyle: formData.resultStyle ?? "",

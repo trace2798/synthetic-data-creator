@@ -25,12 +25,15 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
-import { useForm } from "react-hook-form";
+import { FC, useEffect, useRef, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { FileUploader } from "./file-uploader";
 import { Controller } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+import debounce from "lodash.debounce";
+import { updateSyntheticData } from "@/app/actions";
+import { toast } from "sonner";
 
 const CreateDataSchema = z.object({
   domain: z.string(),
@@ -46,6 +49,7 @@ type OnboardData = z.infer<typeof CreateDataSchema>;
 type NewDataFormProps = {
   userId: string;
   workspaceId: string;
+  dataFormId: string;
   defaultValues?: {
     domain: string;
     resultStyle: string;
@@ -59,6 +63,7 @@ type NewDataFormProps = {
 const NewDataForm: FC<NewDataFormProps> = ({
   userId,
   workspaceId,
+  dataFormId,
   defaultValues,
 }) => {
   const router = useRouter();
@@ -77,6 +82,24 @@ const NewDataForm: FC<NewDataFormProps> = ({
   });
 
   const inputType = form.watch("inputType");
+  const allValues = useWatch({ control: form.control });
+  const debouncedUpdate = useRef(
+    debounce(async (values: OnboardData) => {
+      try {
+        await updateSyntheticData(dataFormId, userId, workspaceId, values);
+        // optional: you could show a “Saved” toast here
+        toast.success("UPDATED");
+      } catch (err) {
+        console.error("Auto‐save failed", err);
+      }
+    }, 500)
+  ).current;
+
+  useEffect(() => {
+    if (form.formState.isDirty) {
+      debouncedUpdate(allValues as OnboardData);
+    }
+  }, [allValues, debouncedUpdate, form.formState.isDirty]);
 
   // const onSubmit = async (values) => {
   //   setSubmitting(true);

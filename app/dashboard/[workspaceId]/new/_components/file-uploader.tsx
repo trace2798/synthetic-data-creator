@@ -50,7 +50,6 @@ export function FileUploader({
     setUploadProgress(10);
     const uploadedKeys: string[] = [];
     for (const [index, file] of files.entries()) {
-      //console.log("FIle", file);
       setUploadProgressIndex(index);
       setUploadProgress(20);
       try {
@@ -80,21 +79,9 @@ export function FileUploader({
           },
           body: file,
         });
-        //console.log("uploadRes");
         if (!uploadRes.ok) {
           toast.error("Upload to S3 Failed");
         }
-        // //console.log("KEY", key);
-        // const compressRes = await fetch("/api/compress", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify({
-        //     key,
-        //     workspaceId,
-        //     imgType: "user",
-        //   }),
-        // });
-        //console.log("Compress Res", compressRes);
         uploadedKeys.push(key);
         toast.success(`Successfully uploaded ${file.name}`);
       } catch (error) {
@@ -106,7 +93,6 @@ export function FileUploader({
     setFiles([]);
     setUploading(false);
     onUploadComplete?.(uploadedKeys);
-    // router.refresh();
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -122,9 +108,9 @@ export function FileUploader({
   const thumbs = files.map((file) => (
     <div key={file.name} className={`w-full`}>
       <div className="flex justify-evenly">
-        <p className="bg-background px-3 py-2">{file.name}</p>
-        <button onClick={removeFile(file)} className="text-red-400 size-5">
-          <Trash className="size-5" />
+        <p className="bg-accent rounded-2xl px-3 py-2">{file.name}</p>
+        <button onClick={removeFile(file)} className="text-red-400 size-4">
+          <Trash className="size-4" />
         </button>
       </div>
     </div>
@@ -185,7 +171,7 @@ export function FileUploader({
             variant="default"
             type="button"
             onClick={uploadFiles}
-            className="mt-5 hover:cursor-pointer"
+            className="mt-5 hover:cursor-pointer w-full max-w-sm"
             disabled={uploading}
           >
             Confirm and Upload Files

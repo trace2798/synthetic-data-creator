@@ -193,3 +193,32 @@ export async function createNewData(userId: string, workspaceId: string) {
 
   return { newDataFormId: newSyntheticData.id, status: 200 };
 }
+
+export async function updateSyntheticData(
+  dataFormId: string,
+  userId: string,
+  workspaceId: string,
+  payload: {
+    domain: string;
+    resultStyle: string;
+    inputType: string;
+    youtubeUrl?: string;
+    s3Key?: string;
+    instruction?: string;
+  }
+) {
+  await db
+    .update(syntheticDataContent)
+    .set({
+      domain: payload.domain,
+      resultStyle: payload.resultStyle,
+      inputType: payload.inputType,
+      youtubeUrl: payload.youtubeUrl ?? "",
+      s3Key: payload.s3Key ?? "",
+      instruction: payload.instruction ?? "",
+      updatedAt: new Date(),
+    })
+    .where(eq(syntheticDataContent.id, dataFormId))
+    .returning();
+ 
+}

@@ -66,12 +66,13 @@ const WorkspaceIdIdPage = async ({ params }: WorkspaceIdIdPageProps) => {
             <Separator />
           </div>
           <div className="flex flex-col space-y-5">
-            {/* <Label>Synthetic Data</Label> */}
             <div>
               <div className="flex flex-row gap-10">
                 {syntheticDataList.length === 0 ? (
                   <div className="w-full text-center flex flex-col space-y-5">
-                    <h1 className="text-3xl">Looks like you have not generated any data till now</h1>
+                    <h1 className="text-3xl">
+                      Looks like you have not generated any data till now
+                    </h1>
                     <div className="w-full max-w-sm mx-auto">
                       <GenerateNewDataButton
                         userId={session.user.id}
