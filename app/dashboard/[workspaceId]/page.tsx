@@ -69,19 +69,31 @@ const WorkspaceIdIdPage = async ({ params }: WorkspaceIdIdPageProps) => {
             {/* <Label>Synthetic Data</Label> */}
             <div>
               <div className="flex flex-row gap-10">
-                {syntheticDataList.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/dashboard/${workspaceId}/${item.id}`}
-                    className="w-full max-w-sm"
-                  >
-                    <Card className="w-full max-w-sm">
-                      <CardHeader>
-                        <CardTitle>{item.title}</CardTitle>
-                      </CardHeader>
-                    </Card>
-                  </Link>
-                ))}
+                {syntheticDataList.length === 0 ? (
+                  <div className="w-full text-center flex flex-col space-y-5">
+                    <h1 className="text-3xl">Looks like you have not generated any data till now</h1>
+                    <div className="w-full max-w-sm mx-auto">
+                      <GenerateNewDataButton
+                        userId={session.user.id}
+                        workspaceId={workspaceId}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  syntheticDataList.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/dashboard/${workspaceId}/${item.id}`}
+                      className="w-full max-w-sm"
+                    >
+                      <Card className="w-full max-w-sm">
+                        <CardHeader>
+                          <CardTitle>{item.title}</CardTitle>
+                        </CardHeader>
+                      </Card>
+                    </Link>
+                  ))
+                )}
               </div>
             </div>
           </div>

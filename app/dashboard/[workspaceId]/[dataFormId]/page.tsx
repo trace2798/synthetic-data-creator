@@ -62,7 +62,18 @@ const Page = async ({ params }: PageProps) => {
     <>
       <div className="absolute top-32 w-full overflow-x-hidden">
         <div className="flex flex-col w-full min-h-[60vh] space-y-10 max-w-6xl mx-auto ">
-          <NewDataForm workspaceId={workspaceId} userId={session.user.id} />
+          <NewDataForm
+            workspaceId={workspaceId}
+            userId={session.user.id}
+            defaultValues={{
+              domain: formData.domain ?? "",
+              resultStyle: formData.resultStyle ?? "",
+              inputType: formData.inputType ?? "",
+              youtubeUrl: formData.youtubeUrl ?? "",
+              s3Key: formData.s3Key ?? "",
+              instruction: formData.instruction ?? "",
+            }}
+          />
         </div>
       </div>
     </>
