@@ -1,29 +1,27 @@
 "use client";
-import { FC } from "react";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { updateWorkspaceMemberRole } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
-import { updateWorkspaceMemberRole } from "@/app/actions";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { FC, useState } from "react";
+import { toast } from "sonner";
 
 interface ChangeRoleFormDialogProps {
   currentUserId: string;
@@ -104,9 +102,6 @@ const ChangeRoleFormDialog: FC<ChangeRoleFormDialogProps> = ({
             </Select>
           </div>
           <DialogFooter>
-            {/* <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose> */}
             <Button
               type="button"
               onClick={handleSave}
