@@ -13,15 +13,18 @@ interface FileWithPreview extends FileWithPath {
   preview: string;
 }
 
-interface InitialImageUploadProps {
+interface InitialFileUploadProps {
   userId: string;
   workspaceId: string;
 }
 
-export function ImageUploader({
+export function FileUploader({
   userId,
   workspaceId,
-}: InitialImageUploadProps) {
+  onUploadComplete,
+}: InitialFileUploadProps & {
+  onUploadComplete?: (keys: string[]) => void;
+}) {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(5);
@@ -45,7 +48,7 @@ export function ImageUploader({
   const uploadFiles = async () => {
     setUploading(true);
     setUploadProgress(10);
-
+    const uploadedKeys: string[] = [];
     for (const [index, file] of files.entries()) {
       //console.log("FIle", file);
       setUploadProgressIndex(index);
@@ -92,6 +95,7 @@ export function ImageUploader({
         //   }),
         // });
         //console.log("Compress Res", compressRes);
+        uploadedKeys.push(key);
         toast.success(`Successfully uploaded ${file.name}`);
       } catch (error) {
         console.error("Upload error: ", error);
@@ -101,12 +105,13 @@ export function ImageUploader({
     }
     setFiles([]);
     setUploading(false);
-    router.refresh();
+    onUploadComplete?.(uploadedKeys);
+    // router.refresh();
   };
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    maxFiles: 5,
+    maxFiles: 1,
     maxSize: 100 * 1024 * 1024,
     accept: {
       "application/pdf": [".pdf"],
@@ -117,11 +122,7 @@ export function ImageUploader({
   const thumbs = files.map((file) => (
     <div key={file.name} className={`w-full`}>
       <div className="flex justify-evenly">
-        <img
-          className="size-[100px] object-cover"
-          src={file.preview}
-          alt={file.name}
-        />
+        <p className="bg-background px-3 py-2">{file.name}</p>
         <button onClick={removeFile(file)} className="text-red-400 size-5">
           <Trash className="size-5" />
         </button>
@@ -160,12 +161,12 @@ export function ImageUploader({
             </>
           ) : (
             <>
-              <input {...getInputProps()} typeof="image" />
               <div className="flex flex-col items-center justify-center">
+                <input {...getInputProps()} />
                 <p className="text-base lg:text-lg ">
                   Drag &apos;n&apos; drop file here
                 </p>
-                <Button variant="outline" className="mt-3">
+                <Button type="button" variant="outline" className="mt-3">
                   Or click to select files
                 </Button>
               </div>
@@ -182,6 +183,7 @@ export function ImageUploader({
           </Card>
           <Button
             variant="default"
+            type="button"
             onClick={uploadFiles}
             className="mt-5 hover:cursor-pointer"
             disabled={uploading}
