@@ -1,11 +1,3 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import DomainSelector from "./_components/domain-selector";
-import { db } from "@/db";
-import { role, workspace, workspaceMembers } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import CreateWorkspaceForm from "./_components/create-workspace-form";
 import {
   Card,
   CardContent,
@@ -14,8 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { db } from "@/db";
+import { role, workspace, workspaceMembers } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { CreateWorkspaceDialog } from "./_components/create-workspace-dialog";
-// import CreateRoleForm from "@/components/create-role-form";
+import CreateWorkspaceForm from "./_components/create-workspace-form";
 
 const Page = async ({}) => {
   const session = await auth.api.getSession({
