@@ -39,6 +39,13 @@ const Page: FC<PageProps> = async ({ params }: PageProps) => {
     .where(eq(workspaceMembers.workspaceId, workspaceId));
   console.log("WORKSPACE MEMBERS:", currentWorkspaceMembers);
   const data = currentWorkspaceMembers;
+
+  const currentUserMembership = currentWorkspaceMembers.find(
+    (m) => m.userId === session.user.id
+  );
+
+  const currentUserRoleName = currentUserMembership?.roleName ?? "viewer";
+  const currentUserId = session.user.id;
   return (
     <>
       <div className="flex flex-col space-y-10 w-full max-w-6xl mx-auto min-h-[50vh]">
@@ -53,7 +60,17 @@ const Page: FC<PageProps> = async ({ params }: PageProps) => {
           </div>
           <Separator />
         </div>
-        <DataTable columns={columns} data={data as WorkspaceMembers[]} />
+        {/* <DataTable columns={columns} data={data as WorkspaceMembers[]} /> */}
+        {/* <DataTable
+          columns={columns({ currentUserId, currentUserRoleName, workspaceId })}
+          data={data as WorkspaceMembers[]}
+        /> */}
+        <DataTable
+          data={data as WorkspaceMembers[]}
+          currentUserId={currentUserId}
+          currentUserRoleName={currentUserRoleName}
+          workspaceId={workspaceId}
+        />
       </div>
     </>
   );

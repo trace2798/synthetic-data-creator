@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import ChangeRoleFormDialog from "./change-role-form-dialog";
 
 export type WorkspaceMembers = {
   membershipId: string;
@@ -19,7 +20,15 @@ export type WorkspaceMembers = {
   membershipCreated: Date;
 };
 
-export const columns: ColumnDef<WorkspaceMembers>[] = [
+export const columns = ({
+  currentUserId,
+  currentUserRoleName,
+  workspaceId,
+}: {
+  currentUserId: string;
+  currentUserRoleName: string;
+  workspaceId: string;
+}): ColumnDef<WorkspaceMembers>[] => [
   {
     accessorKey: "userEmail",
     header: () => <div className="text-center">Email</div>,
@@ -61,14 +70,18 @@ export const columns: ColumnDef<WorkspaceMembers>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(membershipId)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            {/* <DropdownMenuItem>Remove member</DropdownMenuItem> */}
+            <DropdownMenuItem asChild>
+              <ChangeRoleFormDialog
+                currentUserId={currentUserId}
+                currentUserRoleName={currentUserRoleName}
+                workspaceId={workspaceId}
+                membershipId={row.original.membershipId}
+                userEmail={row.original.userEmail}
+                currentRole={row.original.roleName}
+              />
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

@@ -147,3 +147,23 @@ export async function addMemberToWorkspace(
     message: "Member added successfully",
   };
 }
+
+export async function updateWorkspaceMemberRole(
+  membershipId: string,
+  newRoleName: string
+) {
+  const [roleRecord] = await db
+    .select()
+    .from(role)
+    .where(eq(role.name, newRoleName));
+  if (!roleRecord) {
+    throw new Error(`Role ${newRoleName} not found`);
+  }
+
+  await db
+    .update(workspaceMembers)
+    .set({ roleId: roleRecord.id })
+    .where(eq(workspaceMembers.id, membershipId));
+
+  return { status: 200, message: "Role updated" };
+}

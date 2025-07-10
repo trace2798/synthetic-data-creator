@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -14,22 +14,33 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
+import { columns, WorkspaceMembers } from "./columns";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+// interface DataTableProps<TData, TValue> {
+//   columns: ColumnDef<TData, TValue>[];
+//   data: TData[];
+// }
+interface DataTableProps {
+  data: WorkspaceMembers[];
+  currentUserId: string;
+  currentUserRoleName: string;
+  workspaceId: string;
 }
 
-export function DataTable<TData, TValue>({
-  columns,
+export function DataTable({
   data,
-}: DataTableProps<TData, TValue>) {
+  currentUserId,
+  currentUserRoleName,
+  workspaceId,
+}: DataTableProps) {
+  const cols = columns({ currentUserId, currentUserRoleName, workspaceId });
+
   const table = useReactTable({
     data,
-    columns,
+    columns: cols,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
   return (
     <div className="rounded-md border">
@@ -47,7 +58,7 @@ export function DataTable<TData, TValue>({
                           header.getContext()
                         )}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -76,5 +87,5 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }
