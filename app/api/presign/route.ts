@@ -2,8 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
-// const baseUrl = process.env.LAMBDA_BASE_URL!;
-const baseUrl = "http://localhost:3001";
+const baseUrl = process.env.LAMBDA_BASE_URL!;
 
 export async function POST(request: Request) {
   console.log("INSIDE PRESIGN PROXY NEXTJS");
@@ -15,10 +14,10 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
-    // const apiKey = process.env.APIGATEWAY_API_KEY!;
-    // if (!apiKey) {
-    //   return NextResponse.json({ error: "Missing API key" }, { status: 500 });
-    // }
+    const apiKey = process.env.APIGATEWAY_API_KEY!;
+    if (!apiKey) {
+      return NextResponse.json({ error: "Missing API key" }, { status: 500 });
+    }
     const session = await auth.api.getSession({
       headers: await headers(),
     });
@@ -29,7 +28,7 @@ export async function POST(request: Request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // "x-api-key": apiKey
+        "x-api-key": apiKey,
       },
       body: JSON.stringify({ filename, contentType, userId, workspaceId }),
     });
