@@ -192,7 +192,7 @@ const NewDataForm: FC<NewDataFormProps> = ({
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="pdf">PDF</SelectItem>
-                              <SelectItem value="txt">TXT</SelectItem>
+                              {/* <SelectItem value="txt">TXT</SelectItem> */}
                               <SelectItem value="youtube">YouTube</SelectItem>
                             </SelectContent>
                           </Select>

@@ -165,14 +165,14 @@ export default function LoginForm() {
           </form>
         </Form>
         <Separator className="my-5" />
-        <Button
+        {/* <Button
           onClick={handleGithubSignIn}
           size={"sm"}
           className="w-full"
           variant={"secondary"}
         >
           Login with Github <Github />
-        </Button>
+        </Button> */}
       </CardContent>
     </Card>
   );

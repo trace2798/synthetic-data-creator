@@ -23,7 +23,7 @@ export const auth = betterAuth({
     autoSignIn: true,
     minPasswordLength: 8,
     requireEmailVerification: false,
-    disableSignUp: false,
+    disableSignUp: true,
   },
   database: drizzleAdapter(db, {
     provider: "pg", // or "mysql", "sqlite"
