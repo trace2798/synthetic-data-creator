@@ -1,9 +1,5 @@
 "use client";
-import {
-  saveGeneratedCSVFiles,
-  saveGeneratedFiles,
-  updateSyntheticDataCSV,
-} from "@/app/actions";
+import { saveGeneratedCSVFiles, updateSyntheticDataCSV } from "@/app/actions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -103,20 +99,30 @@ const NewCSVDataForm: FC<NewCSVDataFormProps> = ({
   const onSubmit = form.handleSubmit(async (values) => {
     setSubmitting(true);
     try {
-      const res = await fetch("http://localhost:3001/generate-csv", {
+      // const res = await fetch("http://localhost:3001/generate-csv", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     dataFormId,
+      //     workspaceId,
+      //     domain: values.domain,
+      //     s3Key: values.s3Key,
+      //     instruction: values.instruction,
+      //   }),
+      // });
+      const res = await fetch("/api/generate-csv", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           dataFormId,
           workspaceId,
           domain: values.domain,
           s3Key: values.s3Key,
-          instruction: values.instruction,
+          instruction: values.instruction || "",
         }),
       });
-
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err?.message || "Unknown error");

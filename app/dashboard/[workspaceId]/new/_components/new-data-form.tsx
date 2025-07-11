@@ -104,11 +104,25 @@ const NewDataForm: FC<NewDataFormProps> = ({
   const onSubmit = form.handleSubmit(async (values) => {
     setSubmitting(true);
     try {
-      const res = await fetch("http://localhost:3001/generate-data", {
+      // const res = await fetch("http://localhost:3001/generate-data", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     dataFormId,
+      //     userId,
+      //     workspaceId,
+      //     domain: values.domain,
+      //     resultStyle: values.resultStyle,
+      //     youtubeUrl: values.youtubeUrl,
+      //     s3Key: values.s3Key,
+      //     instruction: values.instruction,
+      //   }),
+      // });
+      const res = await fetch("/api/generate-data", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           dataFormId,
           userId,
@@ -120,7 +134,6 @@ const NewDataForm: FC<NewDataFormProps> = ({
           instruction: values.instruction,
         }),
       });
-
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err?.message || "Unknown error");
